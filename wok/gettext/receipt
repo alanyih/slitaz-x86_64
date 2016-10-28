@@ -1,0 +1,47 @@
+# SliTaz package receipt.
+
+PACKAGE="gettext"
+VERSION="0.18.3"
+CATEGORY="development"
+SHORT_DESC="Utilities for the GNU Translation Project."
+MAINTAINER="pankso@slitaz.org"
+LICENSE="GPL3"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WEB_SITE="http://www.gnu.org/software/gettext/"
+WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
+HOST_ARCH="i486 arm x86_64"
+
+# Why deps on glib-dev ??? And glib build depends on gettext anyway...
+DEPENDS="gettext-base libgomp acl-dev gcc-lib-base glib-dev libxml2-dev m4 \
+ncurses"
+BUILD_DEPENDS="acl attr-dev glib-dev libxml2-dev ncurses-dev"
+
+# Handle cross compilation. Glibc-locale are installed in cross chroot.
+case "$ARCH" in
+	arm) BUILD_DEPENDS="ncurses-dev libxml2-tools libxml2-dev" ;;
+	x86_64) BUILD_DEPENDS="ncurses-dev libxml2-tools libxml2-dev" ;;
+esac
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	cd $src
+	./configure $CONFIGURE_ARGS &&
+	make && make install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	mkdir -p $fs/usr/share
+	cp -a $install/usr/bin $fs/usr
+	cp -a $install/usr/lib $fs/usr
+	cp -a $install/usr/include $fs/usr
+	cp -a $install/usr/share/aclocal $fs/usr/share
+	cp -a $install/usr/share/gettext $fs/usr/share
+	# Remove gettext-base files.
+	rm $fs/usr/bin/gettext
+	rm $fs/usr/bin/gettext.sh
+	rm $fs/usr/bin/envsubst
+	rm $fs/usr/bin/ngettext
+}

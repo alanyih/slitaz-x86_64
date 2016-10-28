@@ -1,0 +1,34 @@
+# SliTaz package receipt.
+
+PACKAGE="xorg-libXvMC"
+VERSION="1.0.8"
+CATEGORY="x-window"
+SHORT_DESC="Xorg server module."
+MAINTAINER="pankso@slitaz.org"
+LICENSE="MIT"
+SOURCE="libXvMC"
+TARBALL="$SOURCE-$VERSION.tar.bz2"
+WEB_SITE="http://www.x.org/"
+WGET_URL="$XORG_MIRROR/lib/$TARBALL"
+HOST_ARCH="i486 arm x86_64"
+
+DEPENDS="xorg-libXv"
+BUILD_DEPENDS="xorg-libXv-dev"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	./configure \
+		--sysconfdir=/etc \
+		--mandir=/usr/share/man \
+		--localstatedir=/var \
+		$CONFIGURE_ARGS &&
+	make && make install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	mkdir -p $fs/usr/lib
+	cp -a $install/usr/lib/*.so* $fs/usr/lib
+}

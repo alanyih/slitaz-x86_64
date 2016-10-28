@@ -1,0 +1,30 @@
+# SliTaz package receipt.
+
+PACKAGE="gettext-base"
+VERSION="0.18.3"
+CATEGORY="base-system"
+SHORT_DESC="Base tools from the GNU Translation Project."
+MAINTAINER="pankso@slitaz.org"
+LICENSE="GPL3"
+WEB_SITE="http://www.gnu.org/software/gettext/"
+HOST_ARCH="i486 arm x86_64"
+
+DEPENDS="glibc-base"
+WANTED="gettext"
+
+# Just to be sure when cross compiling, gettext is part of base system.
+testsuite()
+{
+	readelf -h $install/usr/bin/gettext
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	mkdir -p $fs/usr/bin
+	install -m755 $install/usr/bin/gettext \
+		$stuff/gettext.sh \
+		$install/usr/bin/envsubst \
+		$install/usr/bin/ngettext \
+		$fs/usr/bin
+}

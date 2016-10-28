@@ -1,0 +1,29 @@
+# SliTaz package receipt.
+
+PACKAGE="xorg-xbitmaps"
+VERSION="1.1.1"
+CATEGORY="development"
+SHORT_DESC="Devel files for X (bitmaps)."
+MAINTAINER="pankso@slitaz.org"
+LICENSE="MIT"
+SOURCE="xbitmaps"
+TARBALL="$SOURCE-$VERSION.tar.bz2"
+WEB_SITE="http://www.x.org/"
+WGET_URL="$XORG_MIRROR/data/$TARBALL"
+HOST_ARCH="i486 arm x86_64"
+
+DEPENDS="xorg-util-macros"
+BUILD_DEPENDS="xorg-util-macros"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	./configure $CONFIGURE_ARGS &&
+	make && make install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	cp -a $install/* $fs
+}

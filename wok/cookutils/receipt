@@ -1,0 +1,47 @@
+# SliTaz package receipt.
+
+PACKAGE="cookutils"
+VERSION="3.4.2"
+CATEGORY="base-system"
+SHORT_DESC="SliTaz packages builder new generation."
+MAINTAINER="pankso@slitaz.org"
+LICENSE="GPL3"
+WEB_SITE="http://www.slitaz.org/"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="http://hg.slitaz.org/$PACKAGE/archive/$VERSION.tar.gz"
+TAGS="slitaz"
+HOST_ARCH="i486 arm x86_64"
+
+DEPENDS="sdft"
+SPLIT="cookutils-daemon"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	mkdir -p $DESTDIR/usr/bin $DESTDIR/etc/slitaz
+	make DESTDIR=$DESTDIR install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	mkdir -p $fs
+	cp -a $install/* $fs
+	#Symlink cooker to busybox httpd server root
+	cd $fs/var/www
+	ln -s cgi-bin/cooker
+	# Daemon goes in cookutils-daemon
+	rm -rf $fs/etc/init.d
+}
+
+# Pre and post install commands for Tazpkg.
+post_install()
+{
+	case "$(cat "$1/etc/hostname" 2> /dev/null)" in
+	tank*)
+		if ! chroot "$1/" tazpkg list | grep -q aufs ; then
+			tazpkg get-install aufs --root="$1/"
+			sed -i 's/LOAD_MODULES="/&aufs /' "$1/etc/rcS.conf"
+		fi ;;
+	esac
+}

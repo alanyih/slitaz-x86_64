@@ -1,0 +1,54 @@
+# SliTaz package receipt.
+
+PACKAGE="retawq"
+VERSION="0.2.6c"
+CATEGORY="network"
+SHORT_DESC="Text mode Web browser."
+MAINTAINER="pankso@slitaz.org"
+LICENSE="GPL2"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WEB_SITE="http://retawq.sourceforge.net/"
+WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+TAGS="web-browser"
+HOST_ARCH="i486 arm x86_64"
+
+DEPENDS="ncurses"
+BUILD_DEPENDS="ncurses-dev"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries"
+	# We have no locale support on ARM actually
+	case "$ARCH" in
+		arm) opts="" ;;
+		i?86) opts="--enable-i18n" ;;
+	esac
+	cd $src
+	./configure \
+		--enable-local-cgi \
+		--path-prefix=/usr \
+		--path-doc=/usr/share/doc/retawq \
+		--path-man=/usr/share/man $opts &&
+	make
+}
+
+# The base webbrows for ARM, so check
+testsuite()
+{
+	readelf -h $src/retawq
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	mkdir -p $fs/etc $fs/usr/bin
+	cp -a $src/retawq $fs/usr/bin
+	cp -a $stuff/skel $fs/etc
+	# I18n for locale-* packages
+	for lang in de es fr ja pt_BR; do
+		mkdir -p $install/usr/share/locale/$lang/LC_MESSAGES
+		cp $src/i18n/$lang.mo \
+			$install/usr/share/locale/$lang/LC_MESSAGES/retawq.mo
+	done
+}

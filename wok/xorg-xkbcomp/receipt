@@ -1,0 +1,34 @@
+# SliTaz package receipt.
+
+PACKAGE="xorg-xkbcomp"
+VERSION="1.2.3"
+CATEGORY="x-window"
+SHORT_DESC="Xorg keyboard composite."
+MAINTAINER="pankso@slitaz.org"
+LICENSE="MIT"
+SOURCE="xkbcomp"
+TARBALL="$SOURCE-$VERSION.tar.bz2"
+WEB_SITE="http://www.x.org/"
+WGET_URL="$XORG_MIRROR/app/$TARBALL"
+HOST_ARCH="i486 arm x86_64"
+
+DEPENDS="xorg-libxkbfile"
+BUILD_DEPENDS="xorg-libxkbfile-dev"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	./configure \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		$CONFIGURE_ARGS &&
+	make && make install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	mkdir -p $fs/usr
+	cp -a $install/usr/bin $fs/usr
+}
+

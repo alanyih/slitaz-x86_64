@@ -1,0 +1,35 @@
+# SliTaz package receipt.
+
+PACKAGE="harfbuzz"
+VERSION="1.2.7"
+CATEGORY="system-tools"
+SHORT_DESC="OpenType text shaping engine"
+MAINTAINER="pankso@slitaz.org"
+LICENSE="GPL2"
+WEB_SITE="https://www.freedesktop.org/wiki/Software/HarfBuzz/"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="https://www.freedesktop.org/software/harfbuzz/release/$TARBALL"
+HOST_ARCH="i486 arm x86_64"
+
+DEPENDS="glib cairo freetype libffi pcre"
+BUILD_DEPENDS="glib-dev cairo-dev fontconfig-dev freetype-dev"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	./configure \
+		--with-glib \
+		--with-freetype \
+		--with-gobject \
+		--with-icu=no \
+		$CONFIGURE_ARGS &&
+	make && make install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	mkdir -p $fs/usr/lib
+	cp -a $install/usr/bin $fs/usr
+	cp -a $install/usr/lib/*.so* $fs/usr/lib
+}

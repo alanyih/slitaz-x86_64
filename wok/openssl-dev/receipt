@@ -1,0 +1,26 @@
+# SliTaz package receipt.
+
+PACKAGE="openssl-dev"
+VERSION="1.0.1q"
+CATEGORY="development"
+SHORT_DESC="Open source Secure Sockets Layer devel files."
+MAINTAINER="pascal.bellard@slitaz.org"
+LICENSE="BSD"
+WANTED="openssl"
+WEB_SITE="http://www.openssl.org/"
+HOST_ARCH="i486 arm x86_64"
+
+DEPENDS="libcrypto-dev pkg-config"
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	mkdir -p $fs/usr/lib64
+	cp -a $install/usr/include $fs/usr
+	cp -a $install/usr/lib64/*.*a $fs/usr/lib64
+	cp -a $install/usr/lib64/pkgconfig $fs/usr/lib64
+	# libcryto* have moved to a specific package
+	rm -f $fs/usr/lib64/libcrypto*
+	rm -f $fs/usr/lib64/pkgconfig/libcrypto*
+}
+

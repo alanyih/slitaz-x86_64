@@ -1,0 +1,31 @@
+--- a/tazpkg.orig	2014-11-19 16:15:05.000000000 +0000
++++ b/tazpkg	2016-09-03 08:20:22.547018390 +0000
+@@ -459,6 +459,9 @@
+ 			http://*|ftp://*)
+ 				wget -O $2 ${i%packages/*}packages/get/$1 &&
+ 				return 0 ;;
++			https://*)
++				wget --no-check-certificate -nv -O $2 ${i%packages/*}packages/get/$1 &&
++				return 0 ;;
+ 			esac
+ 		done
+ 	done
+@@ -476,6 +479,7 @@
+ 		case "$i" in
+ 			# Mirror URL can have a trailing slash or not.
+ 			http://*|ftp://*) busybox wget -c ${i%/}/$@ && break ;;
++			https://*)  wget --no-check-certificate -nv -c ${i%/}/$@ && break ;;
+ 			*) ln -sf $i/$1 . && break ;;
+ 		esac
+ 	done
+@@ -674,6 +678,10 @@
+ 		status
+ 	fi
+ 	action "Installing \$PACKAGE..."
++
++	[ "$SLITAZ_ARCH" ] && [ -d fs/lib ] && [ ! -h fs/lib ] && mv fs/lib fs/lib64
++	[ "$SLITAZ_ARCH" ] && [ -d fs/usr/lib ] && [ ! -h fs/usr/lib ] && mv fs/usr/lib fs/usr/lib64
++
+ 	[ "$(busybox ls fs/* 2> /dev/null)" ] && cp -a fs/* $ROOT/
+ 	status
+ 	if [ -s files2remove.list ]; then

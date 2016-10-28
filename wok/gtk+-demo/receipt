@@ -1,0 +1,22 @@
+# SliTaz package receipt.
+
+PACKAGE="gtk+-demo"
+VERSION="2.24.24"
+CATEGORY="development"
+SHORT_DESC="The GIMP Toolkit example code and demo."
+MAINTAINER="pankso@slitaz.org"
+LICENSE="GPL2"
+WANTED="gtk+"
+WEB_SITE="http://www.gtk.org/"
+HOST_ARCH="i486 arm x86_64"
+
+DEPENDS="gtk+"
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	mkdir -p $fs/usr/bin $fs/usr/share/applications
+	cp -a $install/usr/bin/gtk-demo $fs/usr/bin
+	cp -a $install/usr/share/gtk-2.0 $fs/usr/share
+	cp $stuff/*.desktop $fs/usr/share/applications
+}

@@ -1,0 +1,43 @@
+# SliTaz package receipt.
+
+PACKAGE="xorg-dev"
+VERSION="7.4"
+CATEGORY="meta"
+SHORT_DESC="Meta-package to install all Xorg devel packages."
+MAINTAINER="pankso@slitaz.org"
+LICENSE="MIT"
+WEB_SITE="http://www.x.org/"
+HOST_ARCH="i486 arm x86_64"
+
+#WANTED="xorg"
+DEPENDS="
+xorg-libXdmcp-dev
+xorg-libXau-dev
+xorg-libX11-dev
+xorg-libXext-dev
+xorg-libXrender-dev
+xorg-libXrandr-dev
+xorg-libXfixes-dev
+xorg-libfontenc-dev
+xorg-libXfont-dev
+xorg-libXft-dev
+xorg-libXcomposite-dev
+xorg-libxkbfile-dev
+xorg-libICE-dev
+xorg-libSM-dev
+xorg-libXt-dev
+xorg-libXinerama-dev
+xorg-libXmu-dev
+xorg-libXpm-dev
+xorg-libXaw-dev
+xorg-libXt-dev
+xorg-libXtst-dev
+xorg-libXcursor-dev
+xorg-libXdamage-dev
+xorg-libXi-dev"
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+    mkdir -p $fs/usr/share/X11
+}

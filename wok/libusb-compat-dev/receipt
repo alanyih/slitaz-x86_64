@@ -1,0 +1,24 @@
+# SliTaz package receipt.
+
+PACKAGE="libusb-compat-dev"
+VERSION="0.1.4"
+CATEGORY="development"
+SHORT_DESC="USB accedd library devel files."
+MAINTAINER="pankso@slitaz.org"
+LICENSE="LGPL2.1"
+WANTED="libusb-compat"
+WEB_SITE="http://libusb.sourceforge.net/"
+HOST_ARCH="i486 arm x86_64"
+
+DEPENDS="libusb-compat udev-dev"
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	mkdir -p $fs/usr/lib
+	cp -a $install/usr/bin $fs/usr
+	cp -a $install/usr/lib/*.*a $fs/usr/lib
+	cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+	cp -a $install/usr/include $fs/usr
+}
+

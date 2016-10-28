@@ -1,0 +1,20 @@
+# SliTaz package receipt.
+
+PACKAGE="libtic"
+VERSION="5.9"
+CATEGORY="development"
+SHORT_DESC="Low-level terminfo library."
+MAINTAINER="pascal.bellard@slitaz.org"
+LICENSE="MIT"
+WANTED="ncurses"
+WEB_SITE="http://invisible-island.net/ncurses/"
+HOST_ARCH="i486 arm x86_64"
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	[ "$ARCH" == "x86_64" ] && libdir=lib64 || libdir=lib
+	
+	mkdir -p $fs/$libdir
+	cp -a $install/$libdir/libtic*.so* $fs/$libdir
+}

@@ -1,0 +1,64 @@
+# SliTaz package receipt.
+
+PACKAGE="tazpkg"
+VERSION="5.3.3"
+CATEGORY="base-system"
+SHORT_DESC="SliTaz packages manager."
+MAINTAINER="pankso@slitaz.org"
+LICENSE="GPL3"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WEB_SITE="http://www.slitaz.org/"
+WGET_URL="http://hg.slitaz.org/tazpkg/archive/$VERSION.tar.gz"
+TAGS="slitaz package-manager"
+HOST_ARCH="i486 arm x86_64"
+
+DEPENDS="busybox gettext-base"
+BUILD_DEPENDS="gettext"
+
+# Gettext is part of cross-chroot
+case "$ARCH" in
+	arm)  BUILD_DEPENDS="" ;;
+esac
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+#
+# Tazpkg is SliTaz packages manager. On an other GNU/Linux install
+# can be do with : make install from the sources directory.
+#
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	patch -p1 -i $stuff/tazpkg-5.3.3-patch-x86_64.patch
+	make && make DESTDIR=$DESTDIR VERSION=$VERSION install
+}
+
+genpkg_rules()
+{
+	cp -a $install/* $fs
+	chown -R root.root $fs
+
+	# Default icon for mimetype (freedesktop standard compliant file
+	# manager will diplay a tazpkg icon for SliTaz packages).
+	mkdir -p $fs/usr/share/icons/hicolor/32x32/mimetypes
+	ln -s /usr/share/pixmaps/tazpkg.png \
+		$fs/usr/share/icons/hicolor/32x32/mimetypes/application-x-tazpkg.png
+
+	rm -rf $fs/usr/share/mime
+}
+
+post_install()
+{
+	# Apply a fix to config file /etc/slitaz/slitaz.conf
+	[ -f /etc/slitaz/slitaz.conf ] && \
+		sed -i 's/LOCAL_STATE/LOCALSTATE/' /etc/slitaz/slitaz.conf
+
+	# Make sure new config is present
+	if ! grep -q ^NOTIFY_GEOM "$root/etc/slitaz/tazpkg.conf"; then
+		cat >> "$root/etc/slitaz/tazpkg.conf" << "EOT"
+# The geometry of the desktop notification
+NOTIFY_GEOM="360x80-0+24"
+
+EOT
+	fi
+}

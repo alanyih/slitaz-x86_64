@@ -1,0 +1,20 @@
+# SliTaz package receipt.
+
+PACKAGE="util-linux-partx"
+VERSION="2.24"
+CATEGORY="system-tools"
+SHORT_DESC="The partx utilities from Util Linux NG"
+MAINTAINER="pankso@slitaz.org"
+LICENSE="GPL2"
+WEB_SITE="https://en.wikipedia.org/wiki/Util-linux"
+HOST_ARCH="i486 arm x86_64"
+
+WANTED="util-linux"
+DEPENDS="glibc-base util-linux-blkid util-linux-uuid util-linux-smartcols"
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	cook_copy_files addpart delpart partx resizepart
+	rm -r $fs/usr/share
+}

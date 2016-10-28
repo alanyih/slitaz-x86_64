@@ -1,0 +1,27 @@
+# SliTaz package receipt.
+
+PACKAGE="ttf-dejavu-extra"
+VERSION="2.35"
+CATEGORY="fonts"
+SHORT_DESC="DejaVu TrueType fonts (extra)"
+MAINTAINER="pankso@slitaz.org"
+LICENSE="other"
+WEB_SITE="http://dejavu-fonts.org/"
+TAGS="font"
+
+WANTED="ttf-dejavu"
+DEPENDS="ttf-dejavu"
+HOST_ARCH="i486 arm x86_64"
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	d=$fs/usr/share/fonts/truetype/ttf-dejavu
+	mkdir -p $d	
+	cp -a $src/ttf/* $d
+	IFS=$'\n'
+	while read f; do
+		rm -f $fs$f
+	done < $WOK/$WANTED/taz/$WANTED-$VERSION/files.list
+	unset IFS
+}

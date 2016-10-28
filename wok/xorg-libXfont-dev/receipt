@@ -1,0 +1,28 @@
+# SliTaz package receipt.
+
+PACKAGE="xorg-libXfont-dev"
+VERSION="1.4.5"
+CATEGORY="development"
+SHORT_DESC="Development files for libXfont"
+MAINTAINER="pankso@slitaz.org"
+LICENSE="other"
+WEB_SITE="http://www.x.org/"
+HOST_ARCH="i486 arm x86_64"
+
+WANTED="xorg-libXfont"
+DEPENDS="xorg-libXfont xorg-fontsproto xorg-libfontenc-dev freetype-dev \
+zlib-dev glibc-dev pkg-config"
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	mkdir -p \
+		$fs/usr/share/licenses \
+		$fs/usr/lib
+	cp -a $src/COPYING $fs/usr/share/licenses/${PACKAGE%-dev}.txt
+
+	cp -a $install/usr/include $fs/usr
+	cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+	cp -a $install/usr/lib/*.la $fs/usr/lib
+}
+

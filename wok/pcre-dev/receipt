@@ -1,0 +1,21 @@
+# SliTaz package receipt.
+
+PACKAGE="pcre-dev"
+VERSION="8.39"
+CATEGORY="development"
+SHORT_DESC="Perl Compatible Regular Expressions, development files"
+MAINTAINER="pankso@slitaz.org"
+LICENSE="BSD"
+WEB_SITE="http://www.pcre.org/"
+HOST_ARCH="i486 arm x86_64"
+
+WANTED="pcre"
+DEPENDS="pcre pkg-config"
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	cp -a $install/* $fs
+	rm $fs/usr/lib/*.so*
+	rm -r $fs/usr/share
+}

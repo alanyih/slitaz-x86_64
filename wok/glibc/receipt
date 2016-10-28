@@ -1,0 +1,155 @@
+# SliTaz package receipt.
+
+PACKAGE="glibc"
+VERSION="2.19"
+CATEGORY="meta"
+SHORT_DESC="The GNU C libraries. This package is used to compile the libc."
+MAINTAINER="pankso@slitaz.org"
+LICENSE="GPL2"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WEB_SITE="http://www.gnu.org/software/libc/"
+WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
+
+DEPENDS="glibc-base glibc-locale glibc-dev"
+BUILD_DEPENDS="linux-api-headers autoconf bash advancecomp"
+HOST_ARCH="i486 arm x86_64"
+
+# Genpkg order for tazwok.
+COOK_OPT="genpkg=glibc-base:glibc-extra-samba:glibc-locale:glibc-dev"
+
+# Rules to compile & install the temporary toolchain.
+cook_tmp_toolchain()
+{
+	cd $src
+	
+	# Glibc Bug Fixes Patch from Arch
+	# fix for {linux,sys}/xattr.h incompatibility - commit fdbe8eae
+	patch -p1 -i $stuff/glibc-2.19-xattr_header.patch
+
+	# fix issues in sin/cos slow path calculation - commit ffe768a9
+	patch -p1 -i $stuff/glibc-2.19-fix-sign-in-bsloww1-input.patch
+
+	# fix tzselect with missing TZDIR - commit 893b4f37/c72399fb
+	patch -p1 -i $stuff/glibc-2.19-tzselect-default.patch
+
+	# Build in a separate directory.
+	mkdir ../glibc-build && cd ../glibc-build
+
+	# glibc no longer support i386, so use -march=i486 for better compatibility.
+	# If i686 ???
+	unset CFLAGS CXXFLAGS
+	case $ARCH in
+		i386|i486)
+			echo "CFLAGS += -O2 -march=i486 -mtune=i486" > configparms ;;
+		x86_64)
+			echo "CFLAGS += -O2 -march=x86-64 -mtune=generic" > configparms ;;
+		*)
+			echo "CFLAGS += -O2 -march=$ARCH -mtune=$ARCH" > configparms ;;
+	esac
+
+	{ $src/configure \
+		--host=$HOST_SYSTEM \
+		--build=$($src/scripts/config.guess) \
+		--disable-profile --enable-add-ons \
+		--enable-kernel=2.6.30 --with-headers=/tools/include \
+		libc_cv_forced_unwind=yes libc_cv_c_cleanup=yes &&
+	make -j1 &&
+	make install
+	} || return 1
+
+	# Link compiler to this new glibc.
+	SPECS=`dirname $($HOST_SYSTEM-gcc -print-libgcc-file-name)`/specs
+	$HOST_SYSTEM-gcc -dumpspecs | sed \
+		-e 's@/lib\(64\)\?/ld@/tools&@g' \
+		-e "/^\*cpp:$/{n;s,$, -isystem /tools/include,}" > $SPECS 
+	unset SPECS
+}
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	# SliTaz is a Busybox based OS, why we so small and fast. Using gawk by
+	# default to build package will not ensure package work with Busybox awk
+	# and so should NOT be use to cook.
+	if [ -x /usr/bin/cook ]; then
+		[ -d "/var/lib/tazpkg/installed/gawk" ] || tazpkg get-install gawk
+	fi
+
+	# Make 4.x support...
+	sed -i 's/3\.79/4.* | &/' configure*
+	# Fixes and patches from LFS, Redhat
+	sed -i -e 's/"db1"/& \&\& $name ne "nss_test1"/' scripts/test-installation.pl
+	sed -i 's|@BASH@|/bin/bash|' elf/ldd.bash.in
+
+	# Glibc misc Bug Fixes
+	# fix for {linux,sys}/xattr.h incompatibility - commit fdbe8eae
+	patch -p1 -i $stuff/glibc-2.19-xattr_header.patch
+
+	# fix issues in sin/cos slow path calculation - commit ffe768a9
+	patch -p1 -i $stuff/glibc-2.19-fix-sign-in-bsloww1-input.patch
+
+	# fix tzselect with missing TZDIR - commit 893b4f37/c72399fb
+	patch -p1 -i $stuff/glibc-2.19-tzselect-default.patch
+
+	# Fix a stack imbalance that occurs under some conditions:
+	sed -i '195,213 s/PRIVATE_FUTEX/FUTEX_CLOCK_REALTIME/' \
+		nptl/sysdeps/unix/sysv/linux/x86_64/pthread_rwlock_timedrdlock.S \
+		nptl/sysdeps/unix/sysv/linux/x86_64/pthread_rwlock_timedwrlock.S
+
+	# Glibc needs ld.so.conf in the install destdir.
+	mkdir -p $WOK/$PACKAGE/install/etc
+	touch $WOK/$PACKAGE/install/etc/ld.so.conf
+	mkdir ../glibc-build && cd ../glibc-build
+	
+	# Read the INSTALL file in glibc. Also Glibc dont build with -Os flag.
+	# --enale-kernel use latest SliTaz Kernel version. From Glibc INSTALL:
+	# "The higher the VERSION number is, the less compatibility code is
+	# added, and the faster the code gets."
+	unset CFLAGS CXXFLAGS
+	case "$ARCH" in
+		i386|i486)
+			echo "CFLAGS += -O2 -march=i486 -mtune=i486" > configparms ;;
+		x86_64)
+			echo "CFLAGS += -O2 -march=x86-64 -mtune=generic" > configparms ;;
+		*)
+			echo "CFLAGS += -O2 -march=$ARCH -mtune=$ARCH" > configparms ;;
+	esac
+	{ $src/configure \
+		--disable-profile \
+		--enable-add-ons \
+		--enable-kernel=2.6.30 \
+		--libexecdir=/usr/lib/glibc \
+		--build=$HOST_SYSTEM \
+		--host=$HOST_SYSTEM \
+		--target=$BUILD_SYSTEM &&
+	make -j1 && make install_root=$DESTDIR install
+	} || return 1
+	for i in $DESTDIR/usr/share/i18n/charmaps/*.gz ; do
+		advdef -z4 $i
+	done
+
+	# If temporary toolchain was previously used, switch to regular toolchain.
+	[ -d /tools ] || return
+	mv /tools/bin/ld /tools/bin/ld-old
+	mv /tools/$(gcc -dumpmachine)/bin/ld /tools/$(gcc -dumpmachine)/bin/ld-old
+	mv /tools/bin/ld-new /tools/bin/ld
+	ln -s /tools/bin/ld /tools/$(gcc -dumpmachine)/bin/ld
+	gcc -dumpspecs | sed -e 's@/tools@@g' \
+		-e '/\*startfile_prefix_spec:/{n;s@.*@/usr/lib/ @}' \
+		-e '/\*cpp:/{n;s@$@ -isystem /usr/include@}' > \
+		`dirname $(gcc --print-libgcc-file-name)`/specs
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	LOCALE=""
+	mkdir -p $fs/var
+
+	# Remove build directory.
+	rm -rf $WOK/$PACKAGE/source/$PACKAGE-build
+	rm -rf $WOK/$PACKAGE/$PACKAGE-build
+
+	# check install
+	ls $install/lib*/
+}

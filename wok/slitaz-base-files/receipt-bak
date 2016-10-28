@@ -1,0 +1,144 @@
+# SliTaz package receipt.
+
+PACKAGE="slitaz-base-files"
+VERSION="309"
+CATEGORY="base-system"
+SHORT_DESC="Linux tree and the necessary files for the base system."
+MAINTAINER="pankso@slitaz.org"
+LICENSE="BSD GPL3"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WEB_SITE="http://www.slitaz.org/"
+WGET_URL="http://hg.slitaz.org/$PACKAGE/archive/$VERSION.tar.gz"
+HOST_ARCH="i486 arm x86_64"
+
+DEPENDS="gettext-base"
+
+CONFIG_FILES="
+/etc/adduser.conf
+/etc/passwd
+/etc/fstab
+/etc/issue
+/etc/hosts
+/etc/host.conf
+/etc/hostname
+/etc/group
+/etc/gshadow
+/etc/shadow
+/etc/daemons.conf
+/etc/nsswitch.conf
+/etc/networks
+/etc/profile
+/etc/securetty
+/etc/services
+/etc/shells"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+    case "$ARCH" in
+	arm)
+	    sed -i -e s"/i486/arm/" $src/rootfs/etc/slitaz/slitaz.conf" ;;
+        armv6hf)
+	    sed -i -e s"/i486/armv6hf/" $src/rootfs/etc/slitaz/slitaz.conf" ;;
+	armv7)
+	    sed -i -e s"/i486/armv7/" $src/rootfs/etc/slitaz/slitaz.conf" ;;
+	x86_64)
+	    sed -i -e s"/i486/x86_64/" $src/rootfs/etc/slitaz/slitaz.conf" ;;
+    esac
+
+	make DESTDIR=$DESTDIR install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	mkdir -p \
+		$fs/bin \
+		$fs/dev \
+		$fs/home \
+		$fs/media/cdrom \
+		$fs/media/flash \
+		$fs/media/usbdisk \
+		$fs/mnt \
+		$fs/proc \
+		$fs/root \
+		$fs/run \
+		$fs/sbin \
+		$fs/sys \
+		$fs/tmp \
+		$fs/usr/bin \
+		$fs/usr/games \
+		$fs/usr/lib \
+		$fs/usr/sbin \
+		$fs/usr/share/doc \
+		$fs/var/cache \
+		$fs/var/games \
+		$fs/var/lib \
+		$fs/var/lock \
+		$fs/var/log/slitaz \
+		$fs/var/spool \
+		$fs/var/tmp \
+		$fs/var/run
+
+	# Daemons may store the pid files in /var/run
+	# from 5.0 /var/run is mounted as tmpfs
+	#ln -s /run $fs/var/run
+
+	# Copy all installed files and set permissions.
+	cp -a $install/* $fs
+
+	chown -R root.root $fs/*
+	chmod 1777 $fs/tmp
+	chmod  640 $fs/etc/shadow
+	chmod  640 $fs/etc/gshadow
+	chmod 0750 $fs/root
+
+	# Populate /dev with $fs/sbin/mktazdevs.sh.
+	$fs/sbin/mktazdevs.sh $fs/dev
+
+	# Create /etc/mtab symlink.
+	cd $fs/etc
+	ln -s /proc/mounts mtab
+
+	# Fix httphelper link
+	cd $fs/usr/lib/slitaz
+	ln -s httphelper.sh httphelper
+
+	# Update copyright year
+	grep -rl 'copy; 2' $fs/var/www | xargs \
+		sed -i "s/copy; [0-9]*/copy; $(date +%Y)/"
+}
+
+# Pre and post install to backup all /etc/settings
+#
+pre_install()
+{
+	cp -a "$1/etc" "$1/tmp/etc.bak" 2>/dev/null
+	[ -x "$1/usr/bin/sudo" ] && mv "$1/usr/bin/sudo" "$1/usr/bin/sudo.orig"
+	# Remove old /var/run symlink
+	[ -h "$1/var/run" ] && rm -f "$1/var/run"
+	:
+}
+
+post_install()
+{
+	if cp -a "$1/tmp/etc.bak"/* "$1/etc"; then
+		rm -r "$1/tmp/etc.bak"
+	fi 2>/dev/null
+
+	[ -x "$1/usr/bin/sudo.orig" ] && mv -f "$1/usr/bin/sudo.orig" "$1/usr/bin/sudo"
+
+	# Reset permission.
+	chmod 640 "$1/etc/shadow"
+	chmod 640 "$1/etc/gshadow"
+
+	if ! grep -q audio "$1/etc/group"; then
+		chroot "$1/" /bin/addgroup -g 20 audio
+	fi
+}
+
+pre_remove()
+{
+	# We can not remove this package!
+	exit 1
+}

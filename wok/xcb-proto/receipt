@@ -1,0 +1,41 @@
+# SliTaz package receipt.
+
+PACKAGE="xcb-proto"
+VERSION="1.10"
+CATEGORY="development"
+SHORT_DESC="X protocol descriptions for XCB"
+MAINTAINER="mallory@sweetpeople.org"
+LICENSE="other"
+WEB_SITE="http://xcb.freedesktop.org/"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="${WEB_SITE}dist/$TARBALL"
+HOST_ARCH="i486 arm x86_64"
+
+DEPENDS="python pkg-config"
+BUILD_DEPENDS="python-dev libxml2-tools"
+
+case "$ARCH" in
+	arm) BUILD_DEPENDS="" ;;
+esac
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	./configure \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	mkdir -p $fs/usr/share/licenses
+	cp -a $src/COPYING $fs/usr/share/licenses/$PACKAGE.txt
+
+	cp -a $install/* $fs
+	# cook removes *.pyc *.pyo files by itself, but they leaves in files.list
+	find $fs -name '*.py?' -delete
+}

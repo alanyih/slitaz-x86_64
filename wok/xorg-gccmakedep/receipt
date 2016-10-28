@@ -1,0 +1,33 @@
+# SliTaz package receipt.
+
+PACKAGE="xorg-gccmakedep"
+VERSION="1.0.2"
+CATEGORY="x-window"
+SHORT_DESC="X gccmakedep utility."
+MAINTAINER="pascal.bellard@slitaz.org"
+LICENSE="MIT"
+SOURCE="gccmakedep"
+TARBALL="$SOURCE-$VERSION.tar.bz2"
+WEB_SITE="http://www.x.org/"
+WGET_URL="$XORG_MIRROR/util/$TARBALL"
+
+BUILD_DEPENDS="xorg-dev-proto"
+HOST_ARCH="i486 arm x86_64"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	cd $src
+	./configure --prefix=/usr --mandir=/usr/share/man \
+	$CONFIGURE_ARGS
+	make
+	make DESTDIR=$DESTDIR install
+	chmod +x $DESTDIR/usr/bin/*
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	mkdir -p $fs/usr
+	cp -a $install/usr/bin $fs/usr
+}

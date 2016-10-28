@@ -1,0 +1,35 @@
+# SliTaz package receipt.
+
+PACKAGE="libglu-mesa"
+VERSION="9.0.0"
+CATEGORY="x-window"
+SHORT_DESC="OpenGL utility library."
+MAINTAINER="pascal.bellard@slitaz.org"
+LICENSE="MIT"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WEB_SITE="http://www.mesa3d.org/"
+#WGET_URL="git|git://anongit.freedesktop.org/mesa/glu"
+WGET_URL="http://cook.slitaz.org/cooker.cgi?src=$TARBALL"
+PROVIDE="libglu"
+
+DEPENDS="glibc-base gcc-lib-base mesa"
+BUILD_DEPENDS="mesa-dev automake autoconf libtool"
+HOST_ARCH="i486 arm x86_64"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	cd $src
+	./autogen.sh
+	./configure \
+		--prefix=/usr \
+		$CONFIGURE_ARGS &&
+	make $MAKEFLAGS && make install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	mkdir -p $fs/usr/lib
+	cp -a $install/usr/lib/libGLU*so* $fs/usr/lib
+}

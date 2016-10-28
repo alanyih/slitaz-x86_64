@@ -1,0 +1,35 @@
+# SliTaz package receipt.
+
+PACKAGE="upx"
+VERSION="3.91"
+CATEGORY="system-tools"
+SHORT_DESC="Ultimate Packer for eXecutables (free version using UCL compression)"
+MAINTAINER="devl547@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="http://upx.sourceforge.net/"
+TARBALL="$PACKAGE-$VERSION-src.tar.bz2"
+WGET_URL="http://upx.sourceforge.net/download/$TARBALL"
+PATCH="http://downloads.sourceforge.net/sevenzip/lzma465.tar.bz2"
+EXTRA_SOURCE_FILES="$PATCH"
+
+DEPENDS="ucl zlib"
+BUILD_DEPENDS="ucl-dev zlib-dev"
+HOST_ARCH="i486 arm x86_64"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	[ -s $SOURCES_REPOSITORY/$(basename $PATCH) ] ||
+		wget -P $SOURCES_REPOSITORY $PATCH
+	tar -xjpf $SOURCES_REPOSITORY/$(basename $PATCH)
+	CXXFLAGS="$CXXFLAGS -DWITH_ZLIB=1"
+	cd $src
+	UPX_LZMADIR=$src make all
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	mkdir -p $fs/usr/bin
+	cp -a $src/src/upx.out $fs/usr/bin/upx
+}

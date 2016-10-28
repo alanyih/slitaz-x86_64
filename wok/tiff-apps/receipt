@@ -1,0 +1,20 @@
+# SliTaz package receipt.
+
+PACKAGE="tiff-apps"
+VERSION="4.0.3"
+CATEGORY="x-window"
+SHORT_DESC="TIFF images manipulation cli applications. (Check tiff for libs)."
+MAINTAINER="pankso@slitaz.org"
+LICENSE="MIT"
+WANTED="tiff"
+WEB_SITE="http://www.remotesensing.org/libtiff/"
+HOST_ARCH="i486 arm x86_64"
+
+DEPENDS="jpeg zlib tiff"
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+    mkdir -p $fs/usr
+    cp -a $install/usr/bin $fs/usr
+}

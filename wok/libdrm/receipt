@@ -1,0 +1,38 @@
+# SliTaz package receipt.
+
+PACKAGE="libdrm"
+VERSION="2.4.68"
+CATEGORY="x-window"
+SHORT_DESC="Freedesktop DRM Library."
+MAINTAINER="pankso@slitaz.org"
+LICENSE="MIT"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WEB_SITE="http://dri.freedesktop.org/"
+WGET_URL="http://dri.freedesktop.org/libdrm/$TARBALL"
+HOST_ARCH="i486 arm x86_64"
+
+DEPENDS="glibc-base udev linux-drm xorg-libpciaccess"
+BUILD_DEPENDS="libpthread-stubs-dev gc-dev pkg-config udev-dev \
+xorg-libpciaccess-dev"
+#xorg-dev xorg-dev-proto
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	./configure \
+		--enable-intel \
+		--enable-radeon \
+		--enable-vmwgfx-experimental-api \
+		--enable-nouveau-experimental-api \
+		--enable-udev \
+		$CONFIGURE_ARGS &&
+	make && make install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	mkdir -p $fs/usr/lib
+	cp -a $install/usr/lib/libdrm.so* $fs/usr/lib
+	cp -a $install/usr/lib/libkms*.so* $fs/usr/lib
+}

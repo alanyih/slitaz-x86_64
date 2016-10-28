@@ -1,0 +1,20 @@
+# SliTaz package receipt.
+
+PACKAGE="libmagic"
+VERSION="5.20"
+CATEGORY="system-tools"
+SHORT_DESC="File type determination library using 'magic' numbers"
+MAINTAINER="erjo@slitaz.org"
+LICENSE="BSD"
+WEB_SITE="http://www.darwinsys.com/file/"
+WANTED="file"
+HOST_ARCH="i486 arm x86_64"
+
+DEPENDS="zlib"
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	mkdir -p $fs/usr/lib
+	cp -a $install/usr/lib/*.so* $fs/usr/lib
+}

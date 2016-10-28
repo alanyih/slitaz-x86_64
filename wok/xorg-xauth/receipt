@@ -1,0 +1,38 @@
+# SliTaz package receipt.
+
+PACKAGE="xorg-xauth"
+VERSION="1.0.7"
+CATEGORY="x-window"
+SHORT_DESC="X authority file utility."
+MAINTAINER="pankso@slitaz.org"
+LICENSE="MIT"
+SOURCE="xauth"
+TARBALL="$SOURCE-$VERSION.tar.bz2"
+WEB_SITE="http://www.x.org/"
+WGET_URL="$XORG_MIRROR/app/$TARBALL"
+HOST_ARCH="i486 arm x86_64"
+
+DEPENDS="xorg-libXmu"
+BUILD_DEPENDS="xorg-libXmu-dev"
+
+case "$ARCH" in
+	arm) BUILD_DEPENDS="xorg-xproto xorg-libXau-dev" ;;
+esac
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	cd $src
+	./configure \
+		--mandir=/usr/share/man \
+		$CONFIGURE_ARGS &&
+	make && make install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	mkdir -p $fs/usr/X11R6
+	cp -a $install/usr/bin $fs/usr
+	ln -s ../bin $fs/usr/X11R6/bin
+}

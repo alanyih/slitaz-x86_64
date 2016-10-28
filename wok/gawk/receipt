@@ -1,0 +1,53 @@
+# SliTaz package receipt.
+
+PACKAGE="gawk"
+VERSION="4.0.1"
+CATEGORY="development"
+SHORT_DESC="GNU awk to handle simple data-reformatting."
+MAINTAINER="pankso@slitaz.org"
+LICENSE="GPL3"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WEB_SITE="http://www.gnu.org/software/gawk/"
+WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
+HOST_ARCH="i486 arm x86_64"
+
+DEPENDS=""
+BUILD_DEPENDS=""
+
+# Rules to compile & install the temporary toolchain.
+cook_tmp_toolchain()
+{
+	cd $src
+	./configure && make && make install
+}
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	cd $src
+	./configure --libexecdir=/usr/lib \
+		$CONFIGURE_ARGS &&
+	make &&	make install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	mkdir -p $fs/usr/share/locale
+	cp -a $install/usr/bin $fs/usr
+	
+	cp -a $install/usr/share/awk $fs/usr/share
+	cp -a $install/usr/share/locale/fr $fs/usr/share/locale
+}
+
+# Pre and post install commands for Tazpkg.
+# We must remove all Busybox symlink before installing.
+pre_install()
+{
+	rm -f "$1/usr/bin/awk"
+}
+
+post_remove()
+{
+	ln -s /bin/busybox "$1/usr/bin/awk"
+}

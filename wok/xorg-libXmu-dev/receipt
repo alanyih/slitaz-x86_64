@@ -1,0 +1,26 @@
+# SliTaz package receipt.
+
+PACKAGE="xorg-libXmu-dev"
+VERSION="1.1.1"
+CATEGORY="development"
+SHORT_DESC="Development files for libXmu"
+MAINTAINER="pankso@slitaz.org"
+LICENSE="other"
+WEB_SITE="http://www.x.org/"
+HOST_ARCH="i486 arm x86_64"
+
+WANTED="xorg-libXmu"
+DEPENDS="xorg-libXmu xorg-libXt-dev xorg-libXext-dev"
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	mkdir -p \
+		$fs/usr/share/licenses \
+		$fs/usr/lib
+	cp -a $src/COPYING $fs/usr/share/licenses/${PACKAGE%-dev}.txt
+
+	cp -a $install/usr/include $fs/usr
+	cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+	cp -a $install/usr/lib/*.la $fs/usr/lib
+}

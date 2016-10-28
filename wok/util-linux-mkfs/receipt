@@ -1,0 +1,25 @@
+# SliTaz package receipt.
+
+PACKAGE="util-linux-mkfs"
+VERSION="2.24"
+CATEGORY="base-system"
+SHORT_DESC="The mkfs utilities from Util Linux"
+MAINTAINER="pankso@slitaz.org"
+LICENSE="GPL2"
+WEB_SITE="https://en.wikipedia.org/wiki/Util-linux"
+HOST_ARCH="i486 arm x86_64"
+
+WANTED="util-linux"
+DEPENDS="glibc-base util-linux-blkid util-linux-uuid zlib"
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	cook_copy_files mk*
+	rm -r $fs/usr
+}
+
+post_remove()
+{
+	ln -s /bin/busybox "$1/sbin/mkswap"
+}

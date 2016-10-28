@@ -1,0 +1,21 @@
+# SliTaz package receipt.
+
+PACKAGE="libgpg-error-dev"
+VERSION="1.23"
+CATEGORY="development"
+SHORT_DESC="Commons error messages for GnuPG headers."
+MAINTAINER="erjo@slitaz.org"
+LICENSE="GPL2"
+WEB_SITE="https://www.gnupg.org/related_software/libgpg-error/"
+HOST_ARCH="i486 arm x86_64"
+
+WANTED="libgpg-error"
+DEPENDS="libgpg-error"
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	cp -a $install/* $fs
+	rm -r $fs/usr/bin/gpg-error $fs/usr/lib/*.so* $fs/usr/share/man
+	rm -r $fs/usr/share/locale
+}

@@ -1,0 +1,33 @@
+# SliTaz package receipt.
+
+PACKAGE="xz"
+VERSION="5.2.1"
+CATEGORY="base-system"
+SHORT_DESC="General-purpose data compressor with a high compression ratio."
+MAINTAINER="pascal.bellard@slitaz.org"
+LICENSE="PublicDomain LGPL2.1 GPL2 GPL3"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WEB_SITE="http://tukaani.org/xz"
+WGET_URL="$WEB_SITE/$TARBALL"
+TAGS="compression archive"
+HOST_ARCH="i486 arm x86_64"
+
+DEPENDS="liblzma"
+BUILD_DEPENDS=""
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	./configure \
+		--enable-dynamic=yes \
+		--enable-small \
+		$CONFIGURE_ARGS &&
+	make && make install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	mkdir -p $fs/usr/bin $fs/usr/lib
+	cp -a $install/usr/bin/xz $fs/usr/bin
+}

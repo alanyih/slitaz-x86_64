@@ -1,0 +1,49 @@
+# SliTaz package receipt.
+
+PACKAGE="elfutils"
+VERSION="0.153"
+CATEGORY="development"
+SHORT_DESC="ELF object file access library."
+MAINTAINER="pascal.bellard@slitaz.org"
+LICENSE="GPL2"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WEB_SITE="https://fedorahosted.org/elfutils/"
+WGET_URL="https://fedorahosted.org/releases/e/l/$PACKAGE/$VERSION/$TARBALL"
+HOST_ARCH="i486 arm x86_64"
+
+DEPENDS="glibc-base"
+BUILD_DEPENDS="wget bzip2-dev liblzma-dev"
+
+# Handle multiarch compilation
+case "$ARCH" in
+	arm) BUILD_DEPENDS="bzip2-dev xz-dev" ;;
+	x86_64) BUILD_DEPENDS="bzip2-dev liblzma-dev" ;;
+esac
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	cd $src
+	
+	# Fix nm-snprintf-size
+	CFLAGS="$CFLAGS -Wno-sizeof-pointer-memaccess"
+
+	sed -i 's/run-strip-reloc.sh//' tests/Makefile* # Need cc -g !
+	./configure $CONFIGURE_ARGS &&
+	# Disable check/tests when cross-compiling
+	case "$ARCH" in
+		arm|x86_64) make && make install ;;
+		*) make && make check && make install ;;
+	esac
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	mkdir -p $fs/usr/lib $fs/usr/bin
+	for i in elfcmp findtextrel unstrip; do
+		cp -a $install/usr/bin/$i $fs/usr/bin
+	done
+	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	cp -a $install/usr/lib/elfutils $fs/usr/lib
+}

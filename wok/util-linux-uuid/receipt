@@ -1,0 +1,36 @@
+# SliTaz package receipt.
+
+PACKED_SIZE="28.0K"
+UNPACKED_SIZE="88.0K"
+PACKAGE="util-linux-uuid"
+VERSION="2.24"
+CATEGORY="base-system"
+SHORT_DESC="The uuid utility and library from Util linux NG."
+MAINTAINER="pankso@slitaz.org"
+LICENSE="GPL2"
+WANTED="util-linux"
+WEB_SITE="http://freecode.com/projects/util-linux/"
+HOST_ARCH="i486 arm x86_64"
+
+DEPENDS="ncursesw"
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	mkdir -p $fs/lib $fs/usr/lib $fs/usr/bin $fs/usr/sbin
+	cp -a $install/usr/sbin/uuidd $fs/usr/sbin
+	cp -a $install/usr/bin/uuidgen $fs/usr/bin
+	cp -a $install/lib/libuuid.so* $fs/lib
+	cd $fs/usr/lib
+	# Be compatible with /cross/*/sysroot
+	ln -s ../../lib/libuuid.so.1.3.0 libuuid.so
+}
+
+# Remove old package
+post_install()
+{
+	if [ -d "$INSTALLED/util-linux-ng-uuid" ]; then
+		echo "Removing old: util-linux-ng-uuid"
+		rm -rf $INSTALLED/util-linux-ng-uuid
+	fi
+}

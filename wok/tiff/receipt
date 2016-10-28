@@ -1,0 +1,29 @@
+# SliTaz package receipt.
+
+PACKAGE="tiff"
+VERSION="4.0.3"
+CATEGORY="x-window"
+SHORT_DESC="TIFF images libs. (Check tiff-apps for utilities)."
+MAINTAINER="pankso@slitaz.org"
+LICENSE="MIT"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WEB_SITE="http://www.remotesensing.org/libtiff/"
+WGET_URL="http://download.osgeo.org/libtiff/$TARBALL"
+HOST_ARCH="i486 arm x86_64"
+
+DEPENDS="jpeg zlib gcc-lib-base"
+BUILD_DEPENDS="jpeg-dev zlib-dev"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	./configure $CONFIGURE_ARGS &&
+	make && make install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	mkdir -p $fs/usr/lib
+	cp -a $install/usr/lib/*.so* $fs/usr/lib
+}

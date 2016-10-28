@@ -1,0 +1,20 @@
+# SliTaz package receipt
+
+PACKAGE="util-linux-setterm"
+VERSION="2.24"
+CATEGORY="base-system"
+SHORT_DESC="The setterm utility from Util Linux"
+MAINTAINER="devel@slitaz.org"
+LICENSE="GPL2"
+WEB_SITE="https://en.wikipedia.org/wiki/Util-linux"
+HOST_ARCH="i486 arm x86_64"
+
+WANTED="util-linux"
+DEPENDS="glibc-base libtinfo"
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	cook_copy_files setterm
+	rm -r $fs/usr/share
+}

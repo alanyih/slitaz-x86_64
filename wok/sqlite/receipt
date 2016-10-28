@@ -1,0 +1,65 @@
+# SliTaz package receipt.
+
+PACKAGE="sqlite"
+_realver=3081101
+VERSION="${_realver:0:1}.${_realver:2:1}.${_realver:3:2}.${_realver:6:6}"
+CATEGORY="office"
+SHORT_DESC="Small SQL database engine."
+MAINTAINER="pankso@slitaz.org"
+LICENSE="PublicDomain"
+TARBALL="$PACKAGE-src-${_realver}.zip"
+WEB_SITE="http://www.sqlite.org/"
+WGET_URL="http://www.sqlite.org/2015/$TARBALL"
+EXTRA_SOURCE_FILES="mysql2sqlite.sh"
+HOST_ARCH="i486 arm x86_64"
+
+DEPENDS="libsqlite"
+BUILD_DEPENDS="tcl-dev"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	case "$ARCH" in
+		arm*) ARCH_ARGS="--with-tcl=/cross/arm/sysroot/usr/lib" ;;
+	esac
+	[ -s "$SOURCES_REPOSITORY/mysql2sqlite.sh" ] ||
+		wget --no-check-ceretificate -O \
+			"$SOURCES_REPOSITORY/mysql2sqlite.sh" \
+			https://gist.github.com/esperlu/943776/raw/dd87f4088f6d5ec7563478f7a28a37ba02cf26e2/mysql2sqlite.sh
+	export CFLAGS="$CFLAGS -DSQLITE_ENABLE_FTS3=1 -DSQLITE_ENABLE_COLUMN_METADATA=1 -DSQLITE_ENABLE_UNLOCK_NOTIFY -DSQLITE_SECURE_DELETE"
+	./configure \
+		--prefix=/usr \
+		--disable-readline \
+		--enable-load-extension \
+		LDFLAGS="$LDFLAGS -ldl" \
+		$ARCH_ARGS \
+		$CONFIGURE_ARGS &&
+	sed -i 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' libtool &&
+  	sed -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' libtool &&
+	make &&
+	make DESTDIR=$DESTDIR install
+	# compile lemon here instead of in lemon
+	if [ -f $src/lemon ]; then
+		rm $src/lemon
+	fi
+	cp $src/tool/lemon.c .
+	sed -i -e 's!lempar.c!/usr/share/lemon/lempar.c!' lemon.c
+	echo -n "Compiling lemon..."
+	gcc -o lemon lemon.c && status
+	mkdir -p $DESTDIR/usr/share/lemon
+	cp -a $src/lemon $DESTDIR/usr/bin
+	cp -a $src/lempar.c $DESTDIR/usr/share/lemon
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	mkdir -p $fs/usr/bin
+	
+	cp -a $install/usr/bin $fs/usr
+	cp "$SOURCES_REPOSITORY/mysql2sqlite.sh" $fs/usr/bin
+	chmod +x $fs/usr/bin/mysql2sqlite.sh
+	if [ -f $fs/usr/bin/lemon ]; then
+		rm -f $fs/usr/bin/lemon
+	fi
+}

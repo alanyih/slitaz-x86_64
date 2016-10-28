@@ -1,0 +1,36 @@
+# SliTaz package receipt.
+
+PACKAGE="libcap"
+VERSION="2.24"
+CATEGORY="system-tools"
+SHORT_DESC="Support for getting/setting POSIX.1e capabilities."
+MAINTAINER="pankso@slitaz.org"
+LICENSE="BSD"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WEB_SITE="http://sites.google.com/site/fullycapable/"
+WGET_URL="http://ftp.df.lth.se/pub/linux/libs/security/linux-privs/libcap2/$TARBALL"
+HOST_ARCH="i486 arm x86_64"
+
+DEPENDS="attr"
+BUILD_DEPENDS="gperf pam-dev attr-dev"
+
+# Handle cross compilation.
+case "$ARCH" in
+	i?86|x86_64) BUILD_DEPENDS="$BUILD_DEPENDS perl"  ;;
+	arm*) ARCH_ARGS="CC=$HOST_SYSTEM-gcc BUILD_CC=gcc" ;;
+esac
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	make DYNAMIC=yes ${ARCH_ARGS} &&
+	make RAISE_SETCAP=no DESTDIR=$DESTDIR install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	mkdir -p $fs/lib64
+	cp -a $install/lib64/*.so* $fs/lib64
+	cp -a $install/sbin $fs
+}

@@ -1,0 +1,46 @@
+# SliTaz package receipt.
+
+PACKAGE="wget"
+VERSION="1.18"
+CATEGORY="network"
+SHORT_DESC="GNU Wget - non-interactive download of files from the Web"
+MAINTAINER="sygne@ombres.eu"
+LICENSE="GPL3"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WEB_SITE="http://www.gnu.org/software/wget/"
+WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
+HOST_ARCH="i486 arm x86_64"
+CONFIG_FILES="/etc/wgetrc"
+
+DEPENDS="libssl libidn pcre util-linux-uuid zlib"
+BUILD_DEPENDS="openssl-dev libidn-dev flex util-linux-uuid-dev"
+
+# Handle cross compilation
+case "$ARCH" in
+	arm) ARCH_ARGS="--with-libssl-prefix=/cross/$ARCH/sysroot/usr/lib" ;;
+esac
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	./configure \
+		--with-ssl=openssl \
+		--with-openssl \
+		--sysconfdir=/etc \
+		$CONFIGURE_ARGS $ARCH_ARGS &&
+	make DESTDIR=$DESTDIR install
+
+	gzip -9 $install/usr/share/man/man1/wget.1
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	cp -a $install/* $fs
+	rm -r $fs/usr/share/info $fs/usr/share/locale
+}
+
+post_remove()
+{
+	ln -s /bin/busybox "$1/usr/bin/wget"
+}

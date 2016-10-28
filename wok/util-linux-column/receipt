@@ -1,0 +1,20 @@
+# SliTaz package receipt.
+
+PACKAGE="util-linux-column"
+VERSION="2.24"
+CATEGORY="base-system"
+SHORT_DESC="The column utility from Util Linux"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="https://en.wikipedia.org/wiki/Util-linux"
+HOST_ARCH="i486 arm x86_64"
+
+WANTED="util-linux"
+DEPENDS="glibc-base"
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	cook_copy_files column
+	rm -r $fs/usr/share
+}

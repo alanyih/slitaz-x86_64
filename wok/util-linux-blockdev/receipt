@@ -1,0 +1,25 @@
+# SliTaz package receipt.
+
+PACKAGE="util-linux-blockdev"
+VERSION="2.24"
+CATEGORY="base-system"
+SHORT_DESC="The blockdev utility from Util Linux"
+MAINTAINER="devel@slitaz.org"
+LICENSE="GPL2"
+WEB_SITE="https://en.wikipedia.org/wiki/Util-linux"
+
+WANTED="util-linux"
+DEPENDS="glibc-base"
+HOST_ARCH="i486 arm x86_64"
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	cook_copy_files blockdev
+	rm -r $fs/usr
+}
+
+post_remove()
+{
+	ln -s /bin/busybox "$1/sbin/blockdev"
+}

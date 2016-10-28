@@ -1,0 +1,35 @@
+# SliTaz package receipt.
+
+PACKAGE="db"
+VERSION="5.3.21"
+CATEGORY="misc"
+SHORT_DESC="Berkeley database system."
+MAINTAINER="pascal.bellard@slitaz.org"
+LICENSE="BSD"
+TARBALL="$PACKAGE-$VERSION.NC.tar.gz"
+WEB_SITE="http://www.oracle.com/technology/software/products/berkeley-db/db/"
+WGET_URL="http://download.oracle.com/berkeley-db/$TARBALL"
+TAGS="database"
+HOST_ARCH="i486 arm x86_64"
+
+DEPENDS="glibc-base libdb"
+BUILD_DEPENDS=""
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	cd $src/build_unix
+	../dist/configure \
+		--enable-cxx \
+		--enable-compat185 \
+		--enable-dbm \
+		$CONFIGURE_ARGS &&
+	make &&	make install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	mkdir -p $fs/usr
+	cp -a $install/usr/bin $fs/usr
+}

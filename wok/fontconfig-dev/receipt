@@ -1,0 +1,22 @@
+# SliTaz package receipt.
+
+PACKAGE="fontconfig-dev"
+VERSION="2.10.91"
+CATEGORY="development"
+SHORT_DESC="Font configuration utilities and library devel files"
+MAINTAINER="pankso@slitaz.org"
+LICENSE="MIT"
+WEB_SITE="http://www.fontconfig.org/wiki/"
+HOST_ARCH="i486 arm x86_64"
+
+WANTED="fontconfig"
+DEPENDS="fontconfig pkg-config"
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	mkdir -p $fs/usr/lib
+	cp -a $install/usr/include $fs/usr
+	cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+	cp -a $install/usr/lib/*.*a $fs/usr/lib
+}

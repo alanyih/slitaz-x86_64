@@ -1,0 +1,51 @@
+# SliTaz package receipt.
+
+PACKAGE="ncurses-common"
+VERSION="5.9"
+CATEGORY="base-system"
+SHORT_DESC="Common files for the ncurses and ncursesw library."
+MAINTAINER="pankso@slitaz.org"
+LICENSE="MIT"
+WANTED="ncurses"
+WEB_SITE="http://invisible-island.net/ncurses/"
+HOST_ARCH="i486 arm x86_64"
+
+DEPENDS="glibc-base"
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	# Terminfo.
+    mkdir -p $fs/usr/share/terminfo
+    for dir in a l r v x
+    do
+        mkdir $fs/usr/share/terminfo/$dir
+    done
+    cp $install/usr/share/terminfo/a/ansi \
+    $fs/usr/share/terminfo/a
+    cp $install/usr/share/terminfo/l/linux \
+    $fs/usr/share/terminfo/l
+    cp $install/usr/share/terminfo/r/rxvt \
+    $fs/usr/share/terminfo/r
+    # Using xterm-color by default to fix mc keyshortcuts
+    # (Shift+Fn, affects sakura too!)
+    cp $install/usr/share/terminfo/x/xterm \
+    $fs/usr/share/terminfo/x/xterm-original
+    cp $install/usr/share/terminfo/x/xterm-256color \
+    $fs/usr/share/terminfo/x
+    cp -a $install/usr/share/terminfo/x/xterm-color \
+    $fs/usr/share/terminfo/x/xterm
+    cp $install/usr/share/terminfo/x/xterm-color \
+    $fs/usr/share/terminfo/x
+    cp $install/usr/share/terminfo/x/xterm-new \
+    $fs/usr/share/terminfo/x
+    cp $install/usr/share/terminfo/x/xterm-vt220 \
+    $fs/usr/share/terminfo/x
+    cp $install/usr/share/terminfo/v/vt100 \
+    $fs/usr/share/terminfo/v
+    cp $install/usr/share/terminfo/v/vt102* \
+    $fs/usr/share/terminfo/v
+
+    # Tabset.
+    cp -a $install/usr/share/tabset $fs/usr/share
+}

@@ -1,0 +1,32 @@
+# SliTaz package receipt.
+
+PACKAGE="bc"
+VERSION="1.06.95"
+CATEGORY="utilities"
+SHORT_DESC="Bc is a cmdline calculator"
+MAINTAINER="pankso@slitaz.org"
+LICENSE="GPL2 LGPL2.1"
+WEB_SITE="http://www.gnu.org/software/bc/"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="http://alpha.gnu.org/gnu/$PACKAGE/$TARBALL"
+TAGS="calculator"
+
+DEPENDS="ncurses readline"
+BUILD_DEPENDS="flex readline-dev texinfo"
+HOST_ARCH="i486 arm x86_64"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	./configure \
+		--with-readline \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	cook_copy_files bc dc
+}

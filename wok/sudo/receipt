@@ -1,0 +1,55 @@
+# SliTaz package receipt.
+
+PACKAGE="sudo"
+VERSION="1.8.10p2"
+CATEGORY="security"
+SHORT_DESC="Sudo (su \"do\") allows a system administrator to delegate authority."
+MAINTAINER="erjo@slitaz.org"
+LICENSE="ISC"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WEB_SITE="http://www.gratisoft.us/sudo/"
+WGET_URL="http://www.gratisoft.us/sudo/dist/$TARBALL"
+CONFIG_FILES="/etc/sudoers"
+HOST_ARCH="i486 arm x86_64"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	./configure --sysconfdir=/etc \
+	--without-pam \
+	--with-editor=/bin/vi \
+	--libexecdir=/usr/lib \
+	$CONFIGURE_ARGS &&
+	# Build everything
+	make &&
+	# Install everything
+	make install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	mkdir -p $fs/usr/lib
+	cp -a $install/usr/bin $fs/usr
+	cp -a $install/usr/sbin $fs/usr
+	cp -a $install/usr/lib/ $fs/usr
+	cp -a $install/etc  $fs/
+}
+
+pre_install()
+{
+	if [ -f "$1/etc/sudoers" ]; then
+		cp "$1/etc/sudoers" "$1/etc/sudoers.bak"
+	fi
+}
+
+post_install()
+{
+	if [ -f "$1/etc/sudoers.bak" ]; then
+		mv "$1/etc/sudoers" "$1/etc/sudoers-dist"
+		mv "$1/etc/sudoers.bak" "$1/etc/sudoers"
+	else
+		chown root.root "$1/etc/sudoers"
+		chmod 0440 "$1/etc/sudoers"
+	fi
+}

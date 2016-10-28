@@ -1,0 +1,23 @@
+# SliTaz package receipt.
+
+PACKAGE="util-linux-cfdisk"
+VERSION="2.24"
+CATEGORY="system-tools"
+SHORT_DESC="The cfdisk utility from Util Linux"
+MAINTAINER="pankso@slitaz.org"
+LICENSE="GPL2"
+WEB_SITE="https://en.wikipedia.org/wiki/Util-linux"
+HOST_ARCH="i486 arm x86_64"
+
+WANTED="util-linux"
+DEPENDS="glibc-base libtinfo ncursesw util-linux-blkid util-linux-fdisk \
+util-linux-mount util-linux-smartcols util-linux-uuid"
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	cook_copy_files cfdisk
+	mkdir -p $fs/usr/share/applications
+	cp $stuff/cfdisk.desktop $fs/usr/share/applications
+	rm -r $fs/usr/share/bash-completion
+}

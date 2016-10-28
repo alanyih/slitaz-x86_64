@@ -1,0 +1,21 @@
+# SliTaz package receipt.
+
+PACKAGE="freetype-dev"
+VERSION="2.6.4"
+CATEGORY="development"
+SHORT_DESC="A free, high-quality, and portable font engine, development files"
+WEB_SITE="https://www.freetype.org/"
+MAINTAINER="pankso@slitaz.org"
+LICENSE="FTL GPL2"
+HOST_ARCH="i486 arm x86_64"
+
+WANTED="freetype"
+DEPENDS="freetype bzip2-dev glib-dev libpng-dev pcre-dev zlib-dev"
+
+# Rules to gen a SliTaz package suitable for Tazpkg. #harfbuzz-dev
+genpkg_rules()
+{
+	cp -a $install/* $fs
+	rm $fs/usr/lib/*.so*
+	rm -r $fs/usr/share/man
+}

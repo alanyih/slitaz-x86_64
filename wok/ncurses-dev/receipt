@@ -1,0 +1,24 @@
+# SliTaz package receipt.
+
+PACKAGE="ncurses-dev"
+VERSION="5.9"
+CATEGORY="development"
+SHORT_DESC="Devel files for the ncurses library."
+MAINTAINER="pankso@slitaz.org"
+LICENSE="MIT"
+WANTED="ncurses"
+WEB_SITE="http://invisible-island.net/ncurses/"
+HOST_ARCH="i486 arm x86_64"
+
+DEPENDS="ncursesw-dev ncurses libtinfo"
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	mkdir -p $fs/lib64 $fs/usr/bin
+	cp -a $install/lib64/*.a $fs/lib64
+	# Use include file from ncursesw-dev
+	#cp -a $install/usr/include $fs/usr
+	cp $install/usr/bin/ncurses5-config $fs/usr/bin
+	chmod 755 $fs/usr/bin/*
+}

@@ -1,0 +1,23 @@
+# SliTaz package receipt.
+
+PACKAGE="libdrm-dev"
+VERSION="2.4.68"
+CATEGORY="development"
+SHORT_DESC="Lib DRM devel files."
+MAINTAINER="pankso@slitaz.org"
+LICENSE="MIT"
+WEB_SITE="http://dri.freedesktop.org/"
+HOST_ARCH="i486 arm x86_64"
+
+WANTED="libdrm"
+DEPENDS="libdrm libdrm-intel libdrm-radeon pkg-config"
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	mkdir -p $fs/usr/lib
+	cp -a $install/usr/include $fs/usr
+	cp -a $install/usr/lib/*.*a $fs/usr/lib
+	cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+}
+

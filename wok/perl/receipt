@@ -1,0 +1,71 @@
+# SliTaz package receipt.
+
+PACKAGE="perl"
+VERSION="5.12.3"
+CATEGORY="development"
+SHORT_DESC="Full Perl interpreter and modules."
+MAINTAINER="pankso@slitaz.org"
+LICENSE="GPL"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+DEPENDS="libdb gdbm zlib"
+BUILD_DEPENDS="db gdbm zlib less"
+WEB_SITE="http://www.perl.org/"
+WGET_URL="http://ftp.funet.fi/pub/CPAN/src/$TARBALL"
+PROVIDE="microperl"
+HOST_ARCH="i486 ar x86_64"
+
+# Rules to compile & install the temporary toolchain.
+cook_tmp_toolchain()
+{
+	cd $src
+	{ sh Configure -des -Dprefix=/tools \
+		-Dstatic_ext='Data/Dumper Fcntl IO' &&
+	
+	# Only few tools are needed in the tmp toolchain.
+	make perl utilities ext/Errno/pm_to_blib
+	} || return 1
+	cp perl pod/pod2man /tools/bin
+	mkdir -p /tools/lib/perl5/5.12.3
+	cp -R lib/* /tools/lib/perl5/5.12.3
+}
+
+
+# Rules to configure and make the package.
+#
+compile_rules()
+{
+	cd $src
+	./configure.gnu --prefix=/usr &&
+	make &&
+	make install
+
+	# make microperl here
+	# patch to fix compiling microperl
+	patch -p0 -i $stuff/miniperlmain.patch
+	# Install in /usr (default is /usr/local).
+	sed -i s/'usr\/local'/'usr'/ uconfig.sh
+	# Sed to search mods in /usr/lib/perl5.
+	sed -i s/'perl5\/5.12'/'perl5'/ uconfig.sh
+	# Optimisation.
+	sed -i s/'unknown'/'$HOST_SYSTEM'/ uconfig.sh
+	# Make it!
+	make -f Makefile.micro regen_uconfig &&
+	make -f Makefile.micro &&
+	strip microperl
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	mkdir -p $fs/usr
+	cp -a $install/usr/bin $fs/usr
+	cp -a $install/usr/lib $fs/usr
+}
+
+# Pre install commands for Tazpkg.
+# Remove perl link to microperl if any.
+#
+pre_install()
+{
+	rm -f "$1/usr/bin/perl"
+}
